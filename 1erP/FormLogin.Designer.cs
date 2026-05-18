@@ -44,6 +44,7 @@
             this.login.TabIndex = 0;
             this.login.Text = "button1";
             this.login.UseVisualStyleBackColor = true;
+            this.login.Click += new System.EventHandler(this.login_Click);
             // 
             // registrar
             // 

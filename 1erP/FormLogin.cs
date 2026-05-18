@@ -16,5 +16,10 @@ namespace _1erP
         {
             InitializeComponent();
         }
+
+        private void login_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

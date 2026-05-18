@@ -31,6 +31,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.aBMArticulosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.verSubastasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cerrarSesionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -38,7 +39,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aBMArticulosToolStripMenuItem,
-            this.verSubastasToolStripMenuItem});
+            this.verSubastasToolStripMenuItem,
+            this.cerrarSesionToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1440, 24);
@@ -58,6 +60,13 @@
             this.verSubastasToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
             this.verSubastasToolStripMenuItem.Text = "VerSubastas";
             this.verSubastasToolStripMenuItem.Click += new System.EventHandler(this.verSubastasToolStripMenuItem_Click);
+            // 
+            // cerrarSesionToolStripMenuItem
+            // 
+            this.cerrarSesionToolStripMenuItem.Name = "cerrarSesionToolStripMenuItem";
+            this.cerrarSesionToolStripMenuItem.Size = new System.Drawing.Size(85, 20);
+            this.cerrarSesionToolStripMenuItem.Text = "CerrarSesion";
+            this.cerrarSesionToolStripMenuItem.Click += new System.EventHandler(this.cerrarSesionToolStripMenuItem_Click);
             // 
             // Menu
             // 
@@ -82,6 +91,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem aBMArticulosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem verSubastasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
     }
 }
 

@@ -47,5 +47,15 @@ namespace _1erP
 
             formLogin.Show();
         }
+
+        private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormLogin formLogin = new FormLogin();
+            formLogin.MdiParent = this;
+            formLogin.FormBorderStyle = FormBorderStyle.None;
+            formLogin.Dock = DockStyle.Fill;
+
+            formLogin.Show();
+        }
     }
 }
