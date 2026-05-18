@@ -1,6 +1,6 @@
 ﻿namespace _1erP
 {
-    partial class Form1
+    partial class Menu
     {
         /// <summary>
         /// Variable del diseñador necesaria.
@@ -50,14 +50,16 @@
             this.aBMArticulosToolStripMenuItem.Name = "aBMArticulosToolStripMenuItem";
             this.aBMArticulosToolStripMenuItem.Size = new System.Drawing.Size(95, 20);
             this.aBMArticulosToolStripMenuItem.Text = "ABM Articulos";
+            this.aBMArticulosToolStripMenuItem.Click += new System.EventHandler(this.aBMArticulosToolStripMenuItem_Click);
             // 
             // verSubastasToolStripMenuItem
             // 
             this.verSubastasToolStripMenuItem.Name = "verSubastasToolStripMenuItem";
             this.verSubastasToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
             this.verSubastasToolStripMenuItem.Text = "VerSubastas";
+            this.verSubastasToolStripMenuItem.Click += new System.EventHandler(this.verSubastasToolStripMenuItem_Click);
             // 
-            // Form1
+            // Menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -65,8 +67,9 @@
             this.Controls.Add(this.menuStrip1);
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.Name = "Menu";
             this.Text = "z";
+            this.Load += new System.EventHandler(this.Menu_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

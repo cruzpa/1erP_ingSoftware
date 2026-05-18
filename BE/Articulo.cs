@@ -12,7 +12,6 @@ namespace BE
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public decimal Precio { private get; set; }
-        public int Stock { get; set; }
         public virtual decimal GetPrecio() { return Precio; }
 
         public virtual string GetDetalle()

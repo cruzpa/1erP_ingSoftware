@@ -8,12 +8,12 @@ namespace DAL
     {
         private SqlConnection conexion;
         private SqlTransaction tx;
-    
 
         public void Abrir()
         {
             conexion = new SqlConnection();
-            conexion.ConnectionString = "Initial catalog=1erP; Data Source=.;integrated security=SSPI";            conexion.Open();
+            conexion.ConnectionString = "Initial catalog=1erP; Data Source=.;integrated security=SSPI";            
+            conexion.Open();
         }
 
         public void Cerrar()
@@ -33,6 +33,11 @@ namespace DAL
             {
                 cmd.Parameters.AddRange(parameters.ToArray());
             }
+            if(tx != null)
+            {
+                cmd.Transaction = tx;
+            }
+
             return cmd;
         }
 
@@ -83,6 +88,31 @@ namespace DAL
             SqlParameter p = new SqlParameter(name, value);
             p.DbType = System.Data.DbType.Single;
             return p;
+        }
+
+        public void IniciarTx()
+        {
+            if (conexion != null && conexion.State == System.Data.ConnectionState.Open)
+            {
+                tx = conexion.BeginTransaction();
+            }
+        }
+        public void ConfirmarTx()
+        {
+            if (tx != null)
+            {
+                tx.Commit();
+                tx = null;
+            }
+        }
+
+        public void DeshacerTx()
+        {
+            if (tx != null)
+            {
+                tx.Rollback();
+                tx = null;
+            }
         }
     }
 }

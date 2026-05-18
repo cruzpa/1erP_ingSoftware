@@ -10,11 +10,16 @@ using System.Windows.Forms;
 
 namespace _1erP
 {
-    public partial class Form1 : Form
+    public partial class FormArticulo : Form
     {
-        public Form1()
+        public FormArticulo()
         {
             InitializeComponent();
+        }
+
+        private void volver_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
