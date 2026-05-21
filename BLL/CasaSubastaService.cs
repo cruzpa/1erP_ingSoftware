@@ -71,8 +71,13 @@ namespace BLL
                     continue;
                 }
 
-                AgregarSubasta(new Subasta(articulo));
+                AgregarSubasta(new Subasta(articulo, CasaSubasta.FechaInicio, CasaSubasta.FechaFin));
             }
+        }
+
+        public List<Subasta> ListarSubastas()
+        {
+            return CasaSubasta.Subastas;
         }
 
         public void AgregarSubasta(Subasta subasta)
@@ -98,6 +103,26 @@ namespace BLL
             }
 
             CasaSubasta.Subastas.Remove(subasta);
+        }
+
+        public void Suscribir(Subasta subasta, Cliente cliente)
+        {
+            if (subasta == null)
+            {
+                throw new ArgumentNullException("subasta");
+            }
+
+            subasta.AgregarInteresado(cliente);
+        }
+
+        public void Desuscribir(Subasta subasta, Cliente cliente)
+        {
+            if (subasta == null)
+            {
+                throw new ArgumentNullException("subasta");
+            }
+
+            subasta.SacarInteresado(cliente);
         }
 
         public void Ofertar(Subasta subasta, Cliente cliente, decimal monto)

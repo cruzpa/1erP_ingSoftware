@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BE
 {
@@ -11,108 +8,79 @@ namespace BE
         private readonly object bloqueoOferta = new object();
 
         public int Id { get; set; }
-        public bool Vendido { get; set; }
-        public Cliente MejorPostor { get; set; }
-        public string Descripcion { get; set; }
-        public bool Activa { get; set; }
+        public Articulo Articulo { get; set; }
+
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+
+        public decimal PrecioInicial { get; set; }
 
         private decimal precioFinal;
-
         public decimal PrecioFinal
         {
             get { return precioFinal; }
-            set
+            private set
             {
                 precioFinal = value;
-                this.NotificarCambioPrecio();
+                NotificarCambioPrecio();
             }
         }
-        public Articulo Articulo { get; set; }
+
+        public Cliente MejorPostor { get; private set; }
+        public EstadoSubasta Estado { get; private set; }
+
+        public bool Activa => Estado == EstadoSubasta.Activa;
+        public bool Vendido => Estado == EstadoSubasta.Finalizada && MejorPostor != null;
+
         public List<IObserverCliente> Interesados { get; set; }
 
         public Subasta()
         {
             Interesados = new List<IObserverCliente>();
+            Estado = EstadoSubasta.Activa;
         }
 
-        public Subasta(Articulo articulo) : this()
+        public Subasta(Articulo articulo, DateTime fechaInicio, DateTime fechaFin) : this()
         {
             if (articulo == null)
             {
                 throw new ArgumentNullException("articulo");
             }
 
+            if (fechaFin <= fechaInicio)
+            {
+                throw new InvalidOperationException("La fecha de fin debe ser posterior a la fecha de inicio.");
+            }
+
             Id = articulo.Id;
             Articulo = articulo;
-            Descripcion = articulo.Descripcion;
-            PrecioFinal = articulo.Precio;
-            Activa = true;
-            Vendido = false;
+            FechaInicio = fechaInicio;
+            FechaFin = fechaFin;
+            PrecioInicial = articulo.Precio;
+            precioFinal = articulo.Precio;
         }
 
-        public void AgregarInteresado(IObserverCliente IOcliente)
+        public void AgregarInteresado(IObserverCliente cliente)
         {
-            if (IOcliente == null)
+            if (cliente == null)
             {
-                throw new ArgumentNullException("IOcliente");
+                throw new ArgumentNullException("cliente");
             }
 
-            if (!Interesados.Contains(IOcliente))
+            if (!Interesados.Contains(cliente))
             {
-                Interesados.Add(IOcliente);
-                Console.WriteLine("El cliente ahora está interesado en esta subasta.");
-            }
-            else
-            {
-                Console.WriteLine("El cliente ya está interesado en esta subasta.");
+                Interesados.Add(cliente);
             }
         }
 
-        public void SacarInteresado(IObserverCliente IOcliente)
+        public void SacarInteresado(IObserverCliente cliente)
         {
-            if (IOcliente == null)
+            if (cliente == null)
             {
-                throw new ArgumentNullException("IOcliente");
+                throw new ArgumentNullException("cliente");
             }
 
-            if (Interesados.Contains(IOcliente))
-            {
-                Interesados.Remove(IOcliente);
-                Console.WriteLine("El cliente ya no esta interesado en esta subasta.");
-
-            }
-            else
-            {
-                Console.WriteLine("El cliente no estaba interesado en esta subasta.");
-            }
-        }
-
-        public void NotificarCambioPrecio()
-        {
-            if(Interesados.Count == 0)
-            {
-                Console.WriteLine("No hay clientes interesados en esta subasta.");
-                return;
-            }
-            Console.WriteLine("Notificando a los interesados..");
-            foreach (IObserverCliente cliente in Interesados)
-            {
-                cliente.ActualizarPrecioSubasta(this);
-            }
-        }
-
-        public void NotificarFinSubasta()
-        {
-            if (Interesados.Count == 0)
-            {
-                Console.WriteLine("No hay clientes interesados en esta subasta.");
-                return;
-            }
-            Console.WriteLine("Notificando a los interesados..");
-            foreach (IObserverCliente cliente in Interesados)
-            {
-                cliente.ActualizarFinSubasta(this);
-            }
+            Interesados.Remove(cliente);
         }
 
         public void Ofertar(Cliente cliente, decimal monto)
@@ -124,14 +92,21 @@ namespace BE
 
             lock (bloqueoOferta)
             {
-                if (!Activa)
+                if (Estado != EstadoSubasta.Activa)
                 {
                     throw new InvalidOperationException("La subasta no esta activa.");
                 }
 
-                if (Vendido)
+                DateTime now = DateTime.Now;
+
+                if (now < FechaInicio)
                 {
-                    throw new InvalidOperationException("El producto ya fue vendido.");
+                    throw new InvalidOperationException("La subasta aun no comenzo.");
+                }
+
+                if (now > FechaFin)
+                {
+                    throw new InvalidOperationException("La subasta ya finalizo.");
                 }
 
                 if (monto <= PrecioFinal)
@@ -141,27 +116,44 @@ namespace BE
 
                 MejorPostor = cliente;
                 PrecioFinal = monto;
-
-                Console.WriteLine($"{cliente.Username} realizó una oferta de {monto}");
             }
         }
 
         public void Finalizar()
         {
-            if (Vendido)
+            if (Estado == EstadoSubasta.Finalizada)
             {
                 throw new InvalidOperationException("La subasta ya ha sido finalizada.");
             }
 
-            Activa = false;
-            Vendido = true;
-
-            string ganador = MejorPostor != null
-                ? MejorPostor.Username
-                : "Sin ofertas";
-
+            Estado = EstadoSubasta.Finalizada;
             NotificarFinSubasta();
         }
 
+        public void Cancelar()
+        {
+            if (Estado == EstadoSubasta.Finalizada)
+            {
+                throw new InvalidOperationException("No se puede cancelar una subasta finalizada.");
+            }
+
+            Estado = EstadoSubasta.Cancelada;
+        }
+
+        public void NotificarCambioPrecio()
+        {
+            foreach (IObserverCliente cliente in Interesados)
+            {
+                cliente.ActualizarPrecioSubasta(this);
+            }
+        }
+
+        public void NotificarFinSubasta()
+        {
+            foreach (IObserverCliente cliente in Interesados)
+            {
+                cliente.ActualizarFinSubasta(this);
+            }
+        }
     }
 }
