@@ -9,6 +9,8 @@ namespace BE
     public class Martillero : Usuario
     {
         public override TipoUsuario TipoUsuario => TipoUsuario.MARTILLERO;
+        public override List<Permiso> Permisos => new List<Permiso> { Permiso.ABM_ARTICULOS };
+
         public string Matricula { get; set; }
     }
 }

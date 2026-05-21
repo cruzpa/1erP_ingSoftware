@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BE;
+using Servicios;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -46,8 +48,22 @@ namespace _1erP
             formLogin.Dock = DockStyle.Fill;
 
             formLogin.Show();
-        }
+            ValidarPermisos();
 
+        }
+        public void ValidarPermisos()
+        {
+            Usuario usuario = SessionManager.GetInstance.usuario;
+
+            if (usuario == null)
+            {
+                aBMArticulosToolStripMenuItem.Visible = false;
+                return;
+            }
+
+            aBMArticulosToolStripMenuItem.Visible =
+                usuario.Permisos.Contains(Permiso.ABM_ARTICULOS);
+        }
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormLogin formLogin = new FormLogin();

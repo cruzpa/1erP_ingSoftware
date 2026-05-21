@@ -21,5 +21,11 @@ namespace BE
         public bool Bloqueado { get; set; }
         public bool Eliminado { get; set; }
         public abstract TipoUsuario TipoUsuario { get; }
+        public abstract List<Permiso> Permisos { get; }
+
+        public bool TienePermiso(Permiso permiso)
+        {
+            return Permisos.Contains(permiso);
+        }
     }
 }

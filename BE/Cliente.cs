@@ -9,6 +9,8 @@ namespace BE
     public class Cliente : Usuario, IObserverCliente
     {
         public override TipoUsuario TipoUsuario => TipoUsuario.CLIENTE;
+        public override List<Permiso> Permisos => new List<Permiso> { Permiso.PARTICIPAR_SUBASTA };
+
         public void ActualizarFinSubasta(Subasta subasta)
         {
             Console.WriteLine(

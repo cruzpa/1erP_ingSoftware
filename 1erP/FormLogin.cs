@@ -37,6 +37,7 @@ namespace _1erP
                     switch (resultado)
                     {
                         case 1:
+                            ((Menu)this.MdiParent).ValidarPermisos();
                             this.Close();
                             break;
                         case 2:
