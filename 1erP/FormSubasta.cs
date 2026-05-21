@@ -45,7 +45,7 @@ namespace _1erP
             dgvSubastas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvSubastas.MultiSelect = false;
             dgvSubastas.ReadOnly = true;
-            dgvSubastas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSubastas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
         }
 
         public void ConfigurarJornada_Click(object sender, EventArgs e)
@@ -155,7 +155,8 @@ namespace _1erP
                 CargarGrillaSubastas();
                 SeleccionarSubasta(subasta);
                 CargarDetalleSubasta(subasta);
-                AgregarNotificacion($"Nueva oferta en {subasta.Articulo.Nombre}. Precio actual: {subasta.PrecioFinal}");
+                AgregarNotificacion($"Nueva oferta de {cliente.Username} en {subasta.Articulo.Nombre}. Precio actual: {subasta.PrecioFinal}");
+                AgregarNotificacion($"Usuarios notificados: {ObtenerUsuariosNotificados(subasta)}.");
             }
             catch (Exception ex)
             {
@@ -174,6 +175,27 @@ namespace _1erP
             if (dgvSubastas.Columns["Subasta"] != null)
             {
                 dgvSubastas.Columns["Subasta"].Visible = false;
+            }
+
+            AjustarColumnasSubastas();
+        }
+
+        private void AjustarColumnasSubastas()
+        {
+            foreach (DataGridViewColumn columna in dgvSubastas.Columns)
+            {
+                columna.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            }
+
+            if (dgvSubastas.Columns["Nombre"] != null)
+            {
+                dgvSubastas.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgvSubastas.Columns["Nombre"].MinimumWidth = 120;
+            }
+
+            if (dgvSubastas.Columns["Id"] != null)
+            {
+                dgvSubastas.Columns["Id"].MinimumWidth = 40;
             }
         }
 
@@ -312,6 +334,22 @@ namespace _1erP
             return subasta.MejorPostor != null
                 ? subasta.MejorPostor.Username
                 : "Sin ofertas";
+        }
+
+        private string ObtenerUsuariosNotificados(Subasta subasta)
+        {
+            List<string> usuarios = subasta.Interesados
+                .OfType<Cliente>()
+                .Select(c => c.Username)
+                .Distinct()
+                .ToList();
+
+            if (usuarios.Count == 0)
+            {
+                return "Sin usuarios";
+            }
+
+            return string.Join(", ", usuarios);
         }
 
         private void AgregarNotificacion(string mensaje)

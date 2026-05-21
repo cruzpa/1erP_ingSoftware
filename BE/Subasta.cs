@@ -115,6 +115,7 @@ namespace BE
                 }
 
                 MejorPostor = cliente;
+                AgregarInteresado(cliente);
                 PrecioFinal = monto;
             }
         }
