@@ -19,15 +19,15 @@ namespace BE
         public decimal PrecioFinal
         {
             get { return precioFinal; }
-            private set
+            set
             {
                 precioFinal = value;
                 NotificarCambioPrecio();
             }
         }
 
-        public Cliente MejorPostor { get; private set; }
-        public EstadoSubasta Estado { get; private set; }
+        public Cliente MejorPostor { get; set; }
+        public EstadoSubasta Estado { get; set; }
 
         public bool Activa => Estado == EstadoSubasta.Activa;
         public bool Vendido => Estado == EstadoSubasta.Finalizada && MejorPostor != null;

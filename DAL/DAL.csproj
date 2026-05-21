@@ -46,6 +46,7 @@
     <Compile Include="DAL_Usuario.cs" />
     <Compile Include="MapperArticulo.cs" />
     <Compile Include="Mapper.cs" />
+    <Compile Include="MapperSubasta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

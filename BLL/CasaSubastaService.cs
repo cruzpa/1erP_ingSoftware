@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BE;
+using DAL;
 
 namespace BLL
 {
@@ -10,6 +11,7 @@ namespace BLL
     {
         private static readonly object bloqueoInstancia = new object();
         private static CasaSubastaService instancia;
+        private readonly MapperSubasta mapperSubasta = new MapperSubasta();
 
         public static CasaSubastaService GetInstance
         {
@@ -52,6 +54,11 @@ namespace BLL
                 throw new ArgumentNullException("articulos");
             }
 
+            if (CargarJornadaActiva())
+            {
+                return;
+            }
+
             HashSet<int> articulosDentroDeLotes = new HashSet<int>();
 
             foreach (Lote lote in articulos.OfType<Lote>())
@@ -71,8 +78,38 @@ namespace BLL
                     continue;
                 }
 
+                if (articulo.Estado != EstadoArticulo.Disponible)
+                {
+                    continue;
+                }
+
                 AgregarSubasta(new Subasta(articulo, CasaSubasta.FechaInicio, CasaSubasta.FechaFin));
+                ActualizarEstadoUnidadVenta(articulo, EstadoArticulo.EnSubasta);
             }
+
+            mapperSubasta.GuardarJornada(CasaSubasta.Subastas);
+        }
+
+        public bool CargarJornadaActiva()
+        {
+            List<Subasta> subastasActivas = mapperSubasta.ListarVigentes();
+
+            if (subastasActivas.Count == 0)
+            {
+                return false;
+            }
+
+            CasaSubasta.Subastas = subastasActivas;
+            CasaSubasta.FechaInicio = subastasActivas.First().FechaInicio;
+            CasaSubasta.FechaFin = subastasActivas.First().FechaFin;
+
+            if (DateTime.Now >= CasaSubasta.FechaFin)
+            {
+                FinalizarSubastas();
+                return false;
+            }
+
+            return true;
         }
 
         public List<Subasta> ListarSubastas()
@@ -145,22 +182,34 @@ namespace BLL
             }
 
             subasta.Ofertar(cliente, monto);
+            mapperSubasta.Editar(subasta);
         }
 
-        public void FinalizarSubastas()
+        public void FinalizarSubastas(bool forzar = false)
         {
-            if (DateTime.Now < CasaSubasta.FechaFin)
+            if (!forzar && DateTime.Now < CasaSubasta.FechaFin)
             {
                 return;
             }
 
             foreach (Subasta subasta in CasaSubasta.Subastas)
             {
-                if (!subasta.Vendido)
+                if (subasta.Estado == EstadoSubasta.Activa)
                 {
                     subasta.Finalizar();
+                    mapperSubasta.Editar(subasta);
+
+                    EstadoArticulo estadoArticulo = subasta.MejorPostor != null
+                        ? EstadoArticulo.Vendido
+                        : EstadoArticulo.Disponible;
+
+                    ActualizarEstadoUnidadVenta(subasta.Articulo, estadoArticulo);
                 }
             }
+
+            CasaSubasta.Subastas = CasaSubasta.Subastas
+                .Where(s => s.Estado == EstadoSubasta.Activa)
+                .ToList();
         }
 
         public List<string> GenerarReporteConsolidado()
@@ -193,6 +242,30 @@ namespace BLL
             }
 
             return reporte.ToString();
+        }
+
+        private void ActualizarEstadoUnidadVenta(Articulo articulo, EstadoArticulo estado)
+        {
+            if (articulo == null)
+            {
+                return;
+            }
+
+            articulo.Estado = estado;
+            ArticuloService.ActualizarEstado(articulo.Id, estado);
+
+            Lote lote = articulo as Lote;
+
+            if (lote == null)
+            {
+                return;
+            }
+
+            foreach (Articulo articuloLote in lote.Articulos)
+            {
+                articuloLote.Estado = estado;
+                ArticuloService.ActualizarEstado(articuloLote.Id, estado);
+            }
         }
     }
 }

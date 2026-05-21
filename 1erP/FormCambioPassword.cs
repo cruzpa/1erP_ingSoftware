@@ -15,6 +15,7 @@ namespace _1erP
         public FormCambioPassword()
         {
             InitializeComponent();
+            textBox1.PasswordChar = '*';
         }
     }
 }

@@ -11,6 +11,7 @@ namespace BE
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
+        public EstadoArticulo Estado { get; set; }
         private decimal precio;
         public virtual decimal Precio
         {
@@ -18,6 +19,12 @@ namespace BE
             set { precio = value; }
         }
         public virtual string Tipo => "Articulo";
+
+        public Articulo()
+        {
+            Estado = EstadoArticulo.Disponible;
+        }
+
         public override string ToString()
         {
             return $"Artículo: {Nombre} - {Descripcion} - Precio: {Precio}";

@@ -108,6 +108,23 @@ namespace BLL
             }
         }
 
+        public static int ActualizarEstado(int idArticulo, EstadoArticulo estado)
+        {
+            try
+            {
+                if (idArticulo <= 0)
+                {
+                    throw new Exception("El artículo no tiene un Id válido");
+                }
+
+                return mapper.ActualizarEstado(idArticulo, estado);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("ACTUALIZAR ESTADO ARTICULO - " + ex.Message);
+            }
+        }
+
         private static void ValidarArticulo(Articulo articulo)
         {
             if (articulo == null)

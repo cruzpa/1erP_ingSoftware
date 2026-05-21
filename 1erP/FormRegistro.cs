@@ -18,6 +18,7 @@ namespace _1erP
         public FormRegistro()
         {
             InitializeComponent();
+            txtPassword.PasswordChar = '*';
         }
 
         private void btnCrearUsuario_Click(object sender, EventArgs e)

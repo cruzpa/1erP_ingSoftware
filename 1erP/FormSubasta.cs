@@ -10,11 +10,17 @@ namespace _1erP
 {
     public partial class FormSubasta : Form
     {
-        private readonly CasaSubastaService casaSubastaService = CasaSubastaService.GetInstance;
+        private CasaSubastaService casaSubastaService;
 
         public FormSubasta()
         {
             InitializeComponent();
+            this.Load += FormSubasta_Load;
+        }
+
+        private void FormSubasta_Load(object sender, EventArgs e)
+        {
+            casaSubastaService = CasaSubastaService.GetInstance;
             ConfigurarFormulario();
         }
 
@@ -22,8 +28,10 @@ namespace _1erP
         {
             ConfigurarFechas();
             ConfigurarGrilla();
+            CargarJornadaActiva();
             LimpiarDetalle();
             ActualizarEstadoJornada();
+            ActualizarBotonesJornada();
         }
 
         private void ConfigurarFechas()
@@ -37,6 +45,19 @@ namespace _1erP
             dateTimePicker2.CustomFormat = "dd/MM/yyyy HH:mm";
             dateTimePicker2.ShowUpDown = true;
             dateTimePicker2.Value = DateTime.Now.AddHours(1);
+        }
+
+        private void CargarJornadaActiva()
+        {
+            if (!casaSubastaService.CargarJornadaActiva())
+            {
+                return;
+            }
+
+            dateTimePicker1.Value = casaSubastaService.CasaSubasta.FechaInicio;
+            dateTimePicker2.Value = casaSubastaService.CasaSubasta.FechaFin;
+            CargarGrillaSubastas();
+            AgregarNotificacion("Jornada activa recuperada.");
         }
 
         private void ConfigurarGrilla()
@@ -69,6 +90,7 @@ namespace _1erP
             CargarGrillaSubastas();
             LimpiarDetalle();
             ActualizarEstadoJornada();
+            ActualizarBotonesJornada();
             AgregarNotificacion("Jornada configurada y subastas cargadas correctamente.");
         }
 
@@ -76,18 +98,21 @@ namespace _1erP
         {
             try
             {
-                foreach (Subasta subasta in casaSubastaService.ListarSubastas())
+                List<Subasta> subastasActivas = casaSubastaService.ListarSubastas()
+                    .Where(s => s.Estado == EstadoSubasta.Activa)
+                    .ToList();
+
+                casaSubastaService.FinalizarSubastas(true);
+
+                foreach (Subasta subasta in subastasActivas)
                 {
-                    if (subasta.Estado == EstadoSubasta.Activa)
-                    {
-                        subasta.Finalizar();
-                        AgregarNotificacion(CrearMensajeFinSubasta(subasta));
-                    }
+                    AgregarNotificacion(CrearMensajeFinSubasta(subasta));
                 }
 
                 CargarGrillaSubastas();
                 CargarDetalleSubasta(ObtenerSubastaSeleccionada());
                 ActualizarEstadoJornada();
+                ActualizarBotonesJornada();
             }
             catch (Exception ex)
             {
@@ -122,7 +147,7 @@ namespace _1erP
 
                 CargarGrillaSubastas();
                 CargarDetalleSubasta(subasta);
-                AgregarNotificacion($"Dejaste de seguir {subasta.Articulo.Nombre}.");
+                AgregarNotificacion("Dejaste de seguir " + subasta.Articulo.Nombre + ".");
             }
             catch (Exception ex)
             {
@@ -143,7 +168,9 @@ namespace _1erP
                     return;
                 }
 
-                if (!decimal.TryParse(txtMontoOferta.Text, out decimal monto))
+                decimal monto;
+
+                if (!decimal.TryParse(txtMontoOferta.Text, out monto))
                 {
                     MessageBox.Show("Ingrese un monto valido.");
                     return;
@@ -155,8 +182,8 @@ namespace _1erP
                 CargarGrillaSubastas();
                 SeleccionarSubasta(subasta);
                 CargarDetalleSubasta(subasta);
-                AgregarNotificacion($"Nueva oferta de {cliente.Username} en {subasta.Articulo.Nombre}. Precio actual: {subasta.PrecioFinal}");
-                AgregarNotificacion($"Usuarios notificados: {ObtenerUsuariosNotificados(subasta)}.");
+                AgregarNotificacion("Nueva oferta de " + cliente.Username + " en " + subasta.Articulo.Nombre + ". Precio actual: " + subasta.PrecioFinal);
+                AgregarNotificacion("Usuarios notificados: " + ObtenerUsuariosNotificados(subasta) + ".");
             }
             catch (Exception ex)
             {
@@ -207,7 +234,13 @@ namespace _1erP
             }
 
             SubastaView subastaView = dgvSubastas.CurrentRow.DataBoundItem as SubastaView;
-            return subastaView?.Subasta;
+
+            if (subastaView == null)
+            {
+                return null;
+            }
+
+            return subastaView.Subasta;
         }
 
         private void SeleccionarSubasta(Subasta subasta)
@@ -237,14 +270,14 @@ namespace _1erP
                 return;
             }
 
-            lblNombreSubasta.Text = $"Nombre: {subasta.Articulo.Nombre}";
-            lblTipoSubasta.Text = $"Tipo: {subasta.Articulo.Tipo}";
-            lblDescripcionSubasta.Text = $"Descripcion: {subasta.Articulo.Descripcion}";
-            lblPrecioInicial.Text = $"Precio inicial: {subasta.PrecioInicial}";
-            lblPrecioActual.Text = $"Precio actual: {subasta.PrecioFinal}";
-            lblMejorPostor.Text = $"Mejor postor: {ObtenerNombreMejorPostor(subasta)}";
-            lblEstadoSubasta.Text = $"Estado: {subasta.Estado}";
-            lblCantidadInteresados.Text = $"Interesados: {subasta.Interesados.Count}";
+            lblNombreSubasta.Text = "Nombre: " + subasta.Articulo.Nombre;
+            lblTipoSubasta.Text = "Tipo: " + subasta.Articulo.Tipo;
+            lblDescripcionSubasta.Text = "Descripcion: " + subasta.Articulo.Descripcion;
+            lblPrecioInicial.Text = "Precio inicial: " + subasta.PrecioInicial;
+            lblPrecioActual.Text = "Precio actual: " + subasta.PrecioFinal;
+            lblMejorPostor.Text = "Mejor postor: " + ObtenerNombreMejorPostor(subasta);
+            lblEstadoSubasta.Text = "Estado: " + subasta.Estado;
+            lblCantidadInteresados.Text = "Interesados: " + subasta.Interesados.Count;
 
             CargarArticulosLote(subasta);
         }
@@ -324,9 +357,18 @@ namespace _1erP
             }
         }
 
+        private void ActualizarBotonesJornada()
+        {
+            bool hayJornadaActiva = casaSubastaService.ListarSubastas()
+                .Any(s => s.Estado == EstadoSubasta.Activa);
+
+            button1.Enabled = !hayJornadaActiva;
+            button2.Enabled = hayJornadaActiva;
+        }
+
         private string CrearMensajeFinSubasta(Subasta subasta)
         {
-            return $"Finalizo {subasta.Articulo.Nombre}. Ganador: {ObtenerNombreMejorPostor(subasta)}. Precio final: {subasta.PrecioFinal}";
+            return "Finalizo " + subasta.Articulo.Nombre + ". Ganador: " + ObtenerNombreMejorPostor(subasta) + ". Precio final: " + subasta.PrecioFinal;
         }
 
         private string ObtenerNombreMejorPostor(Subasta subasta)
@@ -354,7 +396,7 @@ namespace _1erP
 
         private void AgregarNotificacion(string mensaje)
         {
-            listBox2.Items.Add($"{DateTime.Now:HH:mm:ss} - {mensaje}");
+            listBox2.Items.Add(DateTime.Now.ToString("HH:mm:ss") + " - " + mensaje);
             listBox2.TopIndex = listBox2.Items.Count - 1;
         }
 
@@ -371,14 +413,51 @@ namespace _1erP
                 Subasta = subasta;
             }
 
-            public int Id => Subasta.Id;
-            public string Tipo => Subasta.Articulo.Tipo;
-            public string Nombre => Subasta.Articulo.Nombre;
-            public decimal PrecioInicial => Subasta.PrecioInicial;
-            public decimal PrecioActual => Subasta.PrecioFinal;
-            public string MejorPostor => Subasta.MejorPostor != null ? Subasta.MejorPostor.Username : "Sin ofertas";
-            public int Interesados => Subasta.Interesados.Count;
-            public EstadoSubasta Estado => Subasta.Estado;
+            public int Id
+            {
+                get { return Subasta.Id; }
+            }
+
+            public string Tipo
+            {
+                get { return Subasta.Articulo.Tipo; }
+            }
+
+            public string Nombre
+            {
+                get { return Subasta.Articulo.Nombre; }
+            }
+
+            public decimal PrecioInicial
+            {
+                get { return Subasta.PrecioInicial; }
+            }
+
+            public decimal PrecioActual
+            {
+                get { return Subasta.PrecioFinal; }
+            }
+
+            public string MejorPostor
+            {
+                get
+                {
+                    return Subasta.MejorPostor != null
+                        ? Subasta.MejorPostor.Username
+                        : "Sin ofertas";
+                }
+            }
+
+            public int Interesados
+            {
+                get { return Subasta.Interesados.Count; }
+            }
+
+            public EstadoSubasta Estado
+            {
+                get { return Subasta.Estado; }
+            }
+
             public Subasta Subasta { get; private set; }
         }
 
@@ -399,7 +478,7 @@ namespace _1erP
 
                 CargarGrillaSubastas();
                 CargarDetalleSubasta(subasta);
-                AgregarNotificacion($"Dejaste de seguir {subasta.Articulo.Nombre}.");
+                AgregarNotificacion("Dejaste de seguir " + subasta.Articulo.Nombre + ".");
             }
             catch (Exception ex)
             {

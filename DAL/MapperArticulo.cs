@@ -29,6 +29,7 @@ namespace DAL
             articulo.Nombre = reader["Nombre"].ToString();
             articulo.Descripcion = reader["Descripcion"].ToString();
             articulo.Precio = Convert.ToDecimal(reader["Precio"]);
+            articulo.Estado = (EstadoArticulo)Enum.Parse(typeof(EstadoArticulo), reader["Estado"].ToString());
 
             return articulo;
         }
@@ -49,7 +50,8 @@ namespace DAL
                     acceso.CrearParametro("@Nombre", obj.Nombre),
                     acceso.CrearParametro("@Descripcion", obj.Descripcion),
                     acceso.CrearParametro("@Precio", Convert.ToSingle(obj.Precio)),
-                    acceso.CrearParametro("@Tipo", obj.Tipo)
+                    acceso.CrearParametro("@Tipo", obj.Tipo),
+                    acceso.CrearParametro("@Estado", obj.Estado.ToString())
                 };
 
                 int idArticulo = acceso.LeerEscalar(
@@ -58,14 +60,16 @@ namespace DAL
                         Nombre,
                         Descripcion,
                         Precio,
-                        Tipo
+                        Tipo,
+                        Estado
                     )
                     values
                     (
                         @Nombre,
                         @Descripcion,
                         @Precio,
-                        @Tipo
+                        @Tipo,
+                        @Estado
                     );
 
                     select cast(scope_identity() as int);",
@@ -139,7 +143,8 @@ namespace DAL
                     acceso.CrearParametro("@Nombre", obj.Nombre),
                     acceso.CrearParametro("@Descripcion", obj.Descripcion),
                     acceso.CrearParametro("@Precio", Convert.ToSingle(obj.Precio)),
-                    acceso.CrearParametro("@Tipo", obj.Tipo)
+                    acceso.CrearParametro("@Tipo", obj.Tipo),
+                    acceso.CrearParametro("@Estado", obj.Estado.ToString())
                 };
 
                 resultado = acceso.Escribir(
@@ -148,7 +153,8 @@ namespace DAL
                         Nombre = @Nombre,
                         Descripcion = @Descripcion,
                         Precio = @Precio,
-                        Tipo = @Tipo
+                        Tipo = @Tipo,
+                        Estado = @Estado
                     where Id = @Id",
                     parametros
                 );
@@ -273,7 +279,8 @@ namespace DAL
                         Nombre,
                         Descripcion,
                         Precio,
-                        Tipo
+                        Tipo,
+                        Estado
                     from Articulo"
                 );
 
@@ -322,6 +329,37 @@ namespace DAL
             }
 
             return articulos;
+        }
+
+        public int ActualizarEstado(int idArticulo, EstadoArticulo estado)
+        {
+            int resultado = 0;
+
+            acceso.Abrir();
+
+            try
+            {
+                resultado = acceso.Escribir(
+                    @"update Articulo
+                    set Estado = @Estado
+                    where Id = @Id",
+                    new List<SqlParameter>
+                    {
+                        acceso.CrearParametro("@Id", idArticulo),
+                        acceso.CrearParametro("@Estado", estado.ToString())
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("DAL-ACTUALIZAR ESTADO ARTICULO - " + ex.Message);
+            }
+            finally
+            {
+                acceso.Cerrar();
+            }
+
+            return resultado;
         }
     }
 }

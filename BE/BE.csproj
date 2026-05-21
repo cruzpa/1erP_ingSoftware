@@ -44,6 +44,7 @@
     <Compile Include="BE_Bitacora.cs" />
     <Compile Include="CasaSubasta.cs" />
     <Compile Include="Cliente.cs" />
+    <Compile Include="EstadoArticulo.cs" />
     <Compile Include="EstadoSubasta.cs" />
     <Compile Include="IObserverCliente.cs" />
     <Compile Include="ISujetoSubasta.cs" />

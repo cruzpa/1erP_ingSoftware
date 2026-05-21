@@ -18,6 +18,7 @@ namespace _1erP
         public FormLogin()
         {
             InitializeComponent();
+            txtPassword.PasswordChar = '*';
         }
 
         private void ClaveModificada(object o, EventArgs e)
