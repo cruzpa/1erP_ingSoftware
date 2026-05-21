@@ -284,21 +284,21 @@ namespace _1erP
 
             if (inicio == DateTime.MinValue || fin == DateTime.MinValue)
             {
-                lblEstado.Text = "Estado jornada: Sin configurar";
+                lblEstado.Text = "Estado jornada: \nSin configurar";
                 return;
             }
 
             if (ahora < inicio)
             {
-                lblEstado.Text = "Estado jornada: No iniciada";
+                lblEstado.Text = "Estado jornada: \nNo iniciada";
             }
             else if (ahora > fin)
             {
-                lblEstado.Text = "Estado jornada: Finalizada";
+                lblEstado.Text = "Estado jornada: \nFinalizada";
             }
             else
             {
-                lblEstado.Text = "Estado jornada: Activa";
+                lblEstado.Text = "Estado jornada: \nActiva";
             }
         }
 
