@@ -55,7 +55,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="script.sql" />
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="1erP.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
