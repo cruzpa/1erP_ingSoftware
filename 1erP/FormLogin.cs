@@ -76,6 +76,20 @@ namespace _1erP
                     throw new Exception("HAY QUE HACER EL LOG DE BITACORA LOCAL EN TXT"); 
                 }
             }
+        }
+
+        private void registrar_Click(object sender, EventArgs e)
+        {
+            FormRegistro formularioRegistro = new FormRegistro();
+
+            formularioRegistro.MdiParent = this.MdiParent;
+
+            formularioRegistro.FormBorderStyle = FormBorderStyle.None;
+
+            formularioRegistro.Dock = DockStyle.Fill;
+
+            formularioRegistro.Show();
+
             this.Close();
         }
     }

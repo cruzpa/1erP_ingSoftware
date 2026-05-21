@@ -54,6 +54,7 @@
             this.registrar.TabIndex = 1;
             this.registrar.Text = "Registro";
             this.registrar.UseVisualStyleBackColor = true;
+            this.registrar.Click += new System.EventHandler(this.registrar_Click);
             // 
             // txtUsuario
             // 
