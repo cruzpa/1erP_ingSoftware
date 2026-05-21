@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acceso.cs" />
+    <Compile Include="DAL_Bitacora.cs" />
+    <Compile Include="DAL_Usuario.cs" />
     <Compile Include="MapperArticulo.cs" />
     <Compile Include="Mapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -9,15 +9,16 @@ namespace BE
     public class Lote : Articulo
     {
         public List<Articulo> Articulos { get; set; }
-        public override decimal GetPrecio() {
-            decimal totalPrice = 0;
-            foreach (Articulo articulo in Articulos)
+        public override string Tipo => "Lote";
+        public override decimal Precio
+        {
+            get
             {
-                totalPrice += articulo.GetPrecio();
+                return Articulos.Sum(a => a.Precio);
             }
-            return totalPrice;
-        }
 
+            set { }
+        }
         public void AgregarArticulo(Articulo articulo)
         {
             if (!Articulos.Contains(articulo))
@@ -42,20 +43,12 @@ namespace BE
                 Console.WriteLine("El artículo no está en el lote.");
             }
         }
-        public override string GetDetalle()
+        public override string ToString()
         {
-            string detalle = $"Lote: {Nombre}\n";
-            detalle += $"Descripción: {Descripcion}\n";
-            detalle += $"Contenido:\n";
-
-            foreach (Articulo articulo in Articulos)
-            {
-                detalle += $"- {articulo.GetDetalle()}\n";
-            }
-
-            detalle += $"Precio total: {GetPrecio()}";
-
-            return detalle;
+            return $"Lote: {Nombre} - " +
+                   $"Descripción: {Descripcion} - " +
+                   $"Contenido: {string.Join(", ", Articulos)} - " +
+                   $"Precio total: {Precio}";
         }
     }
 }

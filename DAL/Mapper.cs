@@ -9,7 +9,6 @@ namespace DAL
     public abstract class Mapper <T>
     {
         internal Acceso acceso;
-
         public abstract int Insertar(T obj);
         public abstract int Editar(T obj);
         public abstract int Borrar(T obj);

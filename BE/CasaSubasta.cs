@@ -84,7 +84,7 @@ namespace BE
                 );
 
                 Console.WriteLine(
-                    subasta.Articulo.GetDetalle()
+                    subasta.Articulo.ToString()
                 );
 
                 Console.WriteLine("--------------------------------");

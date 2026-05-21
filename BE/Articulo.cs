@@ -11,12 +11,16 @@ namespace BE
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
-        public decimal Precio { private get; set; }
-        public virtual decimal GetPrecio() { return Precio; }
-
-        public virtual string GetDetalle()
+        private decimal precio;
+        public virtual decimal Precio
         {
-            return $"Artículo: {Nombre} - {Descripcion} - Precio: {GetPrecio()}";
+            get { return precio; }
+            set { precio = value; }
+        }
+        public virtual string Tipo => "Articulo";
+        public override string ToString()
+        {
+            return $"Artículo: {Nombre} - {Descripcion} - Precio: {Precio}";
         }
     }
 }
