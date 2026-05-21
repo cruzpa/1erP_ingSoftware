@@ -10,6 +10,12 @@ namespace BE
     {
         public List<Articulo> Articulos { get; set; }
         public override string Tipo => "Lote";
+
+        public Lote()
+        {
+            Articulos = new List<Articulo>();
+        }
+
         public override decimal Precio
         {
             get

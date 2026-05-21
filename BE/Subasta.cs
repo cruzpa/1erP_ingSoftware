@@ -8,6 +8,8 @@ namespace BE
 {
     public class Subasta : ISujetoSubasta
     {
+        private readonly object bloqueoOferta = new object();
+
         public int Id { get; set; }
         public bool Vendido { get; set; }
         public Cliente MejorPostor { get; set; }
@@ -33,8 +35,28 @@ namespace BE
             Interesados = new List<IObserverCliente>();
         }
 
+        public Subasta(Articulo articulo) : this()
+        {
+            if (articulo == null)
+            {
+                throw new ArgumentNullException("articulo");
+            }
+
+            Id = articulo.Id;
+            Articulo = articulo;
+            Descripcion = articulo.Descripcion;
+            PrecioFinal = articulo.Precio;
+            Activa = true;
+            Vendido = false;
+        }
+
         public void AgregarInteresado(IObserverCliente IOcliente)
         {
+            if (IOcliente == null)
+            {
+                throw new ArgumentNullException("IOcliente");
+            }
+
             if (!Interesados.Contains(IOcliente))
             {
                 Interesados.Add(IOcliente);
@@ -48,6 +70,11 @@ namespace BE
 
         public void SacarInteresado(IObserverCliente IOcliente)
         {
+            if (IOcliente == null)
+            {
+                throw new ArgumentNullException("IOcliente");
+            }
+
             if (Interesados.Contains(IOcliente))
             {
                 Interesados.Remove(IOcliente);
@@ -90,22 +117,30 @@ namespace BE
 
         public void Ofertar(Cliente cliente, decimal monto)
         {
-            if (!Activa)
+            if (cliente == null)
             {
-                Console.WriteLine("La subasta no esta activa.");
-                return;
+                throw new ArgumentNullException("cliente");
             }
 
-            if (Vendido)
+            lock (bloqueoOferta)
             {
-                Console.WriteLine("El producto ya fue vendido.");
-                return;
-            }
+                if (!Activa)
+                {
+                    throw new InvalidOperationException("La subasta no esta activa.");
+                }
 
-            if (monto > PrecioFinal)
-            {
-                PrecioFinal = monto;
+                if (Vendido)
+                {
+                    throw new InvalidOperationException("El producto ya fue vendido.");
+                }
+
+                if (monto <= PrecioFinal)
+                {
+                    throw new InvalidOperationException("La oferta debe ser superior al precio actual.");
+                }
+
                 MejorPostor = cliente;
+                PrecioFinal = monto;
 
                 Console.WriteLine($"{cliente.Username} realizó una oferta de {monto}");
             }
@@ -115,10 +150,10 @@ namespace BE
         {
             if (Vendido)
             {
-                //throw new InvalidOperationException("La subasta ya ha sido finalizada.");
-                Console.WriteLine("La subasta ya ha sido finalizada.");
+                throw new InvalidOperationException("La subasta ya ha sido finalizada.");
             }
 
+            Activa = false;
             Vendido = true;
 
             string ganador = MejorPostor != null

@@ -11,5 +11,6 @@ namespace BE
         void AgregarInteresado(IObserverCliente cliente);
         void SacarInteresado(IObserverCliente cliente);
         void NotificarCambioPrecio();
+        void NotificarFinSubasta();
     }
 }
